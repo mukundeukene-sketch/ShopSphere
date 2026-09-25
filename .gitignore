@@ -1,0 +1,26 @@
+# React
+ShopSphere.Client/node_modules/
+ShopSphere.Client/dist/
+
+# .NET
+ShopSphere.API/bin/
+ShopSphere.API/obj/
+ShopSphere.API/.vs/
+
+# Database
+ShopSphere.API/*.db
+ShopSphere.API/*.db-shm
+ShopSphere.API/*.db-wal
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

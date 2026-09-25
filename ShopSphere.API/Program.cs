@@ -7,18 +7,10 @@ using ShopSphere.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================
-// DATABASE
-// =========================
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
-
-// =========================
-// JWT AUTHENTICATION
-// =========================
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 
@@ -36,26 +28,17 @@ builder.Services
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtKey)
             ),
-
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-
             ValidateAudience = true,
             ValidAudience = builder.Configuration["Jwt:Audience"],
-
             ValidateLifetime = true,
-
             ClockSkew = TimeSpan.Zero
         };
     });
-
-// =========================
-// CORS
-// =========================
 
 builder.Services.AddCors(options =>
 {
@@ -68,30 +51,21 @@ builder.Services.AddCors(options =>
     });
 });
 
-// =========================
-// CONTROLLERS
-// =========================
-
 builder.Services.AddControllers();
-
-// =========================
-// SWAGGER
-// =========================
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// =========================
-// DEMO USER SEEDING
-// =========================
 
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
         .GetRequiredService<ApplicationDbContext>();
 
+    // Apply pending EF Core migrations automatically
+    context.Database.Migrate();
+
+    // Create demo user if it does not already exist
     if (!context.Users.Any(u => u.Email == "demo@shopsphere.com"))
     {
         var demoUser = new User
@@ -109,10 +83,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// =========================
-// DEVELOPMENT TOOLS
-// =========================
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -123,7 +93,6 @@ app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
-// IMPORTANT: Authentication must come before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
